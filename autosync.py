@@ -380,6 +380,7 @@ def sincronizar():
         with zipfile.ZipFile(latest_file, 'r') as zip_ref:
             extracted_folder = os.path.join(origem_folder, os.path.splitext(os.path.basename(latest_file))[0])
             zip_ref.extractall(extracted_folder)
+            print(extracted_folder)
 
         # Diretório de destino
         destino_lapa = Path(data['diretorio_lapa'])
@@ -390,6 +391,8 @@ def sincronizar():
         destino_sjc_pross = os.path.join(destino_sjc, 'Processado')
 
         if os.path.isdir(extracted_folder):
+            # Verificar se a pasta descompactada é da Loja de Osasco ou Jandira.
+
             # Verificar subpastas para Lapa
             lapa_dirs = ['43582584000163', '43582584000325', '43582584000406', '43582584000597']
             for subfolder in os.listdir(extracted_folder):
@@ -413,6 +416,15 @@ def sincronizar():
                     if not os.path.exists(os.path.join(destino_sjc_pross, xml_file)):
                         shutil.copy(src_file, dest_file)
                         count += 1
+
+                elif xml_file.startswith("cfe") and xml_file.endswith(".xml"):
+                    print(xml_file)
+                    src_file = os.path.join(extracted_folder, xml_file)
+                    dest_file = os.path.join(destino_sjc, xml_file)
+                    # Verificar essa parte. Se o arquivo xml_file não estiver dentro da pasta destino_sjc_pross, deve haver a cópia do arquivo.
+                    if not os.path.exists(os.path.join(destino_sjc_pross, xml_file)):
+                        shutil.copy(src_file, dest_file)
+                        count += 1                    
 
             shutil.rmtree(extracted_folder)
             os.remove(latest_file)
@@ -526,7 +538,7 @@ config_button.pack(side="left", padx=5)
 generate_button = ttk.Button(button_frame, text="Job", width=10, command=job_sequence)
 generate_button.pack(side="left", padx=5)
 
-sync_button = ttk.Button(button_frame, text="Sync", width=10, command=download)
+sync_button = ttk.Button(button_frame, text="Sync", width=10, command=sincronizar)
 sync_button.pack(side="left", padx=5)
 
 # Status
